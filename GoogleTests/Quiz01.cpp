@@ -179,7 +179,7 @@ TEST(Quiz01, Part2)
 	}
 
 	SolverPart2 solverFinal;
-	solverFinal.FindTwice(inputFinal);
+	//solverFinal.FindTwice(inputFinal);
 
 	std::cerr << "[          ] solverFinal.RepeatListCount = " << solverFinal.RepeatListCount << std::endl;
 	std::cerr << "[          ] solverFinal.FirstTwiceFrequency = " << solverFinal.FirstTwiceFrequency << std::endl;
