@@ -1,5 +1,6 @@
 #include "pch.h"
 #include <fstream>
+#include <algorithm>
 
 using namespace std;
 
@@ -31,7 +32,66 @@ public:
 	}
 };
 
-TEST(Quiz01, SampleInput)
+struct DuplicateFrequencyRecord
+{
+public:
+	bool IsDuplicate;
+	int NewFrequency;
+
+	DuplicateFrequencyRecord(bool isDuplicate, int newFrequency)
+	{
+		IsDuplicate = isDuplicate;
+		NewFrequency = newFrequency;
+	}
+
+	DuplicateFrequencyRecord() : DuplicateFrequencyRecord(false, 0) { }
+};
+
+class SolverPart2
+{
+public:
+	int RepeatListCount;
+	int FirstTwiceFrequency;
+
+	SolverPart2()
+	{
+		RepeatListCount = 0;
+		FirstTwiceFrequency = 0;
+		records.push_back(0);
+	}
+
+	void FindTwice(vector<int> input)
+	{
+		bool found = false;
+
+		while (!found)
+		{
+			RepeatListCount++;
+
+			for (std::vector<int>::iterator it = input.begin(); !found && it != input.end(); ++it)
+			{
+				int newAddedFrequency = *it;
+				solver = solver.Add(newAddedFrequency);
+				
+				found = records.size() > 0 && (std::find(records.begin(), records.end(), solver.CurrentFrequency) != records.end());
+
+				if (found)
+				{
+					FirstTwiceFrequency = solver.CurrentFrequency;
+					break;
+				}
+
+				records.push_back(solver.CurrentFrequency);
+			}
+		}
+	}
+
+private:
+	std::vector<int> records;
+	Solver solver = Solver(0);
+};
+
+TEST(Quiz01, Part1)
 {
 	Solver solver1 = Solver(0).Add(1).Add(1).Add(1);
 	EXPECT_TRUE(solver1.HasFrequency(3));
@@ -45,11 +105,10 @@ TEST(Quiz01, SampleInput)
 	Solver solver4 = Solver(0).Add(1).Add(1).Add(1);
 	EXPECT_TRUE(solver4.HasFrequency(3));
 
-	// https://stackoverflow.com/questions/7868936/read-file-line-by-line-using-ifstream-in-c
-	std::ifstream infile("../Quiz01.txt");
-
 	Solver solverFinal = Solver(0);
 
+	// https://stackoverflow.com/questions/7868936/read-file-line-by-line-using-ifstream-in-c
+	std::ifstream infile("../Quiz01.txt");
 	string line;
 	while (std::getline(infile, line))
 	{
@@ -63,4 +122,65 @@ TEST(Quiz01, SampleInput)
 
 	std::cerr << "[          ] solverFinal.solverFinal.AddCount = " << solverFinal.AddCount << std::endl;
 	std::cerr << "[          ] solverFinal.CurrentFrequency = " << solverFinal.CurrentFrequency << std::endl;
+}
+
+TEST(Quiz01, Part2)
+{
+	vector<int> input1;
+	input1.push_back(1);
+	input1.push_back(-1);
+	SolverPart2 solver1 = SolverPart2();
+	solver1.FindTwice(input1);
+	EXPECT_EQ(0, solver1.FirstTwiceFrequency);
+
+	vector<int> input2;
+	input2.push_back(3);
+	input2.push_back(3);
+	input2.push_back(4);
+	input2.push_back(-2);
+	input2.push_back(-4);
+	SolverPart2 solver2 = SolverPart2();
+	solver2.FindTwice(input2);
+	EXPECT_EQ(10, solver2.FirstTwiceFrequency);
+
+	vector<int> input3;
+	input3.push_back(-6);
+	input3.push_back(3);
+	input3.push_back(8);
+	input3.push_back(5);
+	input3.push_back(-6);
+	SolverPart2 solver3 = SolverPart2();
+	solver3.FindTwice(input3);
+	EXPECT_EQ(5, solver3.FirstTwiceFrequency);
+
+	vector<int> input4;
+	input4.push_back(7);
+	input4.push_back(7);
+	input4.push_back(-2);
+	input4.push_back(-7);
+	input4.push_back(-4);
+	SolverPart2 solver4 = SolverPart2();
+	solver4.FindTwice(input4);
+	EXPECT_EQ(14, solver4.FirstTwiceFrequency);
+
+	vector<int> inputFinal;
+
+	// https://stackoverflow.com/questions/7868936/read-file-line-by-line-using-ifstream-in-c
+	std::ifstream infile("../Quiz01.txt");
+	string line;
+	while (std::getline(infile, line))
+	{
+		std::istringstream iss(line);
+		int frequency;
+		if (!(iss >> frequency)) { break; } // error
+
+		// process pair (a,b)
+		inputFinal.push_back(frequency);
+	}
+
+	SolverPart2 solverFinal;
+	solverFinal.FindTwice(inputFinal);
+
+	std::cerr << "[          ] solverFinal.RepeatListCount = " << solverFinal.RepeatListCount << std::endl;
+	std::cerr << "[          ] solverFinal.FirstTwiceFrequency = " << solverFinal.FirstTwiceFrequency << std::endl;
 }
