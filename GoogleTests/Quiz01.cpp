@@ -184,3 +184,28 @@ TEST(Quiz01, Part2)
 	std::cerr << "[          ] solverFinal.RepeatListCount = " << solverFinal.RepeatListCount << std::endl;
 	std::cerr << "[          ] solverFinal.FirstTwiceFrequency = " << solverFinal.FirstTwiceFrequency << std::endl;
 }
+
+TEST(Quiz01, Part2Additional)
+{
+	vector<int> input;
+	input.push_back(7); // 7
+	input.push_back(7); // 14
+	input.push_back(-13); // 1
+	input.push_back(4); //5
+	input.push_back(9); //14
+	input.push_back(3); //17
+	SolverPart2 solver = SolverPart2();
+	solver.FindTwice(input);
+	EXPECT_EQ(14, solver.FirstTwiceFrequency);
+}
+
+TEST(Quiz01, Part2Additional_RepeatList)
+{
+	vector<int> input;
+	input.push_back(7); // 7
+	input.push_back(-6); // 1
+	// 8, 2, 9, 3, ..., 13, 7
+	SolverPart2 solver = SolverPart2();
+	solver.FindTwice(input);
+	EXPECT_EQ(7, solver.FirstTwiceFrequency);
+}
