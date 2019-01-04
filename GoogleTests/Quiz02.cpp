@@ -125,3 +125,130 @@ TEST(Quiz02, Part1_TestInput)
 	std::cerr << "[          ] count3 = " << count3 << std::endl;
 	std::cerr << "[          ] total = " << total << std::endl;
 }
+
+class SolverPart2
+{
+public:
+	vector<string> Results;
+
+	void Process(std::vector<string> input)
+	{
+		for (vector<string>::iterator it = input.begin(); it != input.end(); ++it)
+		{
+			for (vector<string>::iterator comparedIt = vector<string>::iterator(it); comparedIt != input.end(); ++comparedIt)
+			{
+				string item1 = *it;
+				string item2 = *comparedIt;
+
+				ASSERT_EQ(item1.size(), item2.size());
+
+				int diffCount = 0;
+
+				for (int i = 0; i < item1.size(); i++)
+				{
+					char c1 = item1[i];
+					char c2 = item2[i];
+
+					if (c1 == c2)
+						diffCount++;
+				}
+
+				bool isMatch = diffCount == 1;
+
+				if (isMatch)
+				{
+					string intersect;
+					set_intersection(item1.begin(), item1.end(), item2.begin(), item2.end(), std::inserter<string>(intersect, intersect.begin()));
+					this->Results.push_back(intersect);
+				}
+			}
+		}
+	}
+
+	void Process_NoConsiderPosition()
+	{
+		// each string should know char diff as [1, -1, 2, 3, 4]
+		// or [0, 0, 0, 1, 0] where 1 is the diff char and 0 is the same char
+		// to self: [0, 0, 0, 0, 0]
+		// to match: [0, 0, 1, 0, 0]
+		// to non-match: [0, 1, 1, 0, 0]
+
+		// now, this can be reduced to single number count.
+		// find x that has y such that count of x for y == 1.
+
+		// when searching, line 1 needs to look for line 2 to n.
+		// line k needs to look for line k+1 to n.
+
+		set<string> setinput = set<string>(setinput.begin(), setinput.end());
+		vector<pair<string, pair<string, string>>> matches; // [unique, [str1, str2]]
+
+		for (set<string>::iterator it = setinput.begin(); it != setinput.end(); ++it)
+		{
+			string itemString = *it;
+			set<char> item = set<char>(itemString.begin(), itemString.end());
+
+			for (set<string>::iterator comparedIt = set<string>::iterator(it); comparedIt != setinput.end(); ++comparedIt)
+			{
+				string comparedItemString = *comparedIt;
+				set<char> comparedItem = set<char>(comparedItemString.begin(), comparedItemString.end());
+
+				set<char> intersect;
+				set_intersection(item.begin(), item.end(), comparedItem.begin(), comparedItem.end(), std::inserter(intersect, intersect.begin()));
+
+				bool isMatch = (intersect.size() == (item.size() - 1));
+
+				pair<string, string> matchedStrings = pair<string, string>(itemString, comparedItemString);
+				matches.push_back(pair<string, pair<string, string>>("unique", matchedStrings));
+
+				// AH ... this will not consider the positions of characters....
+			}
+		}
+	}
+};
+
+TEST(Quiz02, Part2_SetIntersection_On_String)
+{
+	set<string> s1 = { "a", "b", "c" };
+	set<string> s2 = { "a", "d", "c" };
+
+	set<string> intersection;
+
+	set_intersection(s1.begin(), s1.end(), s2.begin(), s2.end(), std::inserter(intersection, intersection.begin()));
+
+	string item0 = *std::next(intersection.begin(), 0);
+	string item1 = *std::next(intersection.begin(), 1);
+
+	ASSERT_EQ(2, intersection.size());
+	ASSERT_EQ("a", item0);
+	ASSERT_EQ("c", item1);
+}
+
+TEST(Quiz02, Part2_StringToCharSet)
+{
+	string str = "abcdeabc";
+	set<char> unique = set<char>(str.begin(), str.end());
+
+	ASSERT_EQ(5, unique.size());
+}
+
+TEST(Quiz02, Part2_SampleInput)
+{
+	std::vector<string> data;
+	data.push_back("abcde");
+	data.push_back("fghij");
+	data.push_back("klmno");
+	data.push_back("pqrst");
+	data.push_back("fguij");
+	data.push_back("axcye");
+	data.push_back("wvxyz");
+
+	SolverPart2 solver;
+	solver.Process(data);
+	vector<string> letterList = solver.Results;
+	ASSERT_EQ(1, letterList.size());
+
+	string letters = *std::next(letterList.begin(), 0);
+	ASSERT_EQ(4, letters.size());
+
+	ASSERT_EQ("fgij", letters);
+}
