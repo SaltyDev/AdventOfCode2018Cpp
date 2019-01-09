@@ -34,6 +34,7 @@
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Quiz02.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
